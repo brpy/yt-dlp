@@ -3,11 +3,8 @@ from __future__ import unicode_literals
 from .common import InfoExtractor
 from ..utils import js_to_json, urljoin
 
-# strings are obfuscated by concatenating substrings
-split_string_part = r'(?:%s|%s)' % (r'"(?:[^"\\]|\\.)*"',
-                                    r"'(?:[^'\\]|\\.)*'")
-split_string = r'(?:' + split_string_part + r'(?:\s*\+\s*' + split_string_part + r')*)'
-videolink = r"document\.getElementById\('" + r"(?:'\+')?".join('videolink') + r"'\)\.innerHTML\s*=\s*(?P<data>" + split_string + r")"
+
+videolink = r"document\.getElementById\('" + r"(?:'\+')?".join('videoolink') + r"'\)\.innerHTML\s*=\s*(?P<data>" + r".*" + r")"
 
 
 class StreamtapeIE(InfoExtractor):
@@ -30,8 +27,7 @@ class StreamtapeIE(InfoExtractor):
         webpage = self._download_webpage(url, video_id)
 
         search_results = self._html_search_regex(videolink, webpage, 'video', group='data').split('+')
-        video_parsed = [self._parse_json(v, video_id, js_to_json) for v in search_results]
-        video = urljoin(url, ''.join(video_parsed))
+        video = "https:" + search_results[0].strip().strip('"') + search_results[1].split("'")[1][2:] 
 
         poster = self._html_search_regex(r' id="mainvideo"[^>]* poster="(?P<data>.*?)"',
                                          webpage, 'poster', group='data')
